@@ -1,11 +1,9 @@
-import torch
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torch.nn.utils.rnn import pad_sequence
-
 from Dataset.contrastive_dataset import ConstrastiveDataset
 from Models.contrastive_transformer import contrastive_transformer
 from constrastive_config import Config
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+import torch
 from contrastive_loss import ContrastiveLoss
 
 
@@ -23,8 +21,8 @@ class custom_transformers_trainer():
     
     def collate_fn(self, batch):
         original_data, contrastive_data = zip(*batch)
-        original_data = pad_sequence(original_data, batch_first=True, padding_value=0)
-        contrastive_data = pad_sequence(contrastive_data, batch_first=True, padding_value=0)
+        original_data = torch.nn.utils.rnn.pad_sequence(original_data, batch_first=True, padding_value=0)
+        contrastive_data = torch.nn.utils.rnn.pad_sequence(contrastive_data, batch_first=True, padding_value=0)
         return original_data, contrastive_data
         
     def train(self):
@@ -41,12 +39,16 @@ class custom_transformers_trainer():
                 self.optimizer.zero_grad()
                 
                 original, augmented = original.to(self.config.device), augmented.to(self.config.device)
-
-                original_padding_mask = (original == 0).to(self.config.device)
-                augmented_padding_mask = (augmented == 0).to(self.config.device)
+                original_mask = torch.zeros((original.shape[1], original.shape[1]), device=self.config.device).type(torch.bool)
+                original_padding_mask = (original == 0)
+                original_padding_mask = original_padding_mask.to(self.config.device)
                 
-                original_embs = self.model(original, padding_mask=original_padding_mask)
-                augmented_embs = self.model(augmented, padding_mask=augmented_padding_mask)
+                augmented_mask = torch.zeros((augmented.shape[1], augmented.shape[1]), device=self.config.device).type(torch.bool)
+                augmented_padding_mask = (augmented == 0)
+                augmented_padding_mask = augmented_padding_mask.to(self.config.device)
+                
+                original_embs = self.model(original, original_mask, original_padding_mask)
+                augmented_embs = self.model(augmented, augmented_mask, augmented_padding_mask)
                 
                 # mean pooling for sentence representation.
                 original_embs = torch.mean(original_embs, dim=1)
