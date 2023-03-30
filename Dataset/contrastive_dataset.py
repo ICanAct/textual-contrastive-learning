@@ -15,10 +15,10 @@ class ConstrastiveDataset(Dataset):
         super().__init__()
         csv_path = os.path.join(data_dir, file_name)
         self.contrastive_frame = pd.read_csv(csv_path)
-        self.original_data_list = self.contrastive_frame['Description'].values.tolist()
         self.unk_token = '<unk>'
         self.pad_token = '<pad>'
         self.load_embedding()
+        self.load_original_data()
         self.load_contrastive_data()
         
     def __len__(self):
@@ -28,8 +28,6 @@ class ConstrastiveDataset(Dataset):
         
         original_data = self.original_data_list[index]
         contrastive_data = random.choice(self.augmented_data_list[index])
-        original_data = self.convert_text_to_input_ids(original_data)
-        contrastive_data = self.convert_text_to_input_ids(contrastive_data)
         
         return original_data, contrastive_data
     
@@ -49,9 +47,15 @@ class ConstrastiveDataset(Dataset):
                 words[i] = self.word2idx[words[i]]
         return torch.Tensor(words).long()
     
+    def load_original_data(self):
+        self.original_data_list = self.contrastive_frame['Description'].values.tolist()
+        for i, data in enumerate(self.original_data_list):
+            self.original_data_list[i] = self.convert_text_to_input_ids(data)
+
+
     def load_contrastive_data(self):
-        self.augmented_data_list = self.contrastive_frame[self.contrastive_frame.columns.to_list()[2:]].values.tolist()
-        for i in range(len(self.augmented_data_list)):
-            self.augmented_data_list[i] = [x for x in self.augmented_data_list[i] if str(x) != 'nan']
+        self.augmented_data_list = self.contrastive_frame.iloc[:,2:].values.tolist()
+        for i, data in enumerate(self.augmented_data_list):
+            self.augmented_data_list[i] = [self.convert_text_to_input_ids(x) for x in data if str(x) != 'nan']
 
 
