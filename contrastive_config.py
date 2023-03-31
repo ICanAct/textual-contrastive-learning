@@ -1,7 +1,7 @@
 import torch
 class Config:
     def __init__(self):
-        self.batch_size = 2
+        self.batch_size = 512
         self.num_workers = 1
         self.epochs = 20
         self.hidden_size = 768

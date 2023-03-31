@@ -14,7 +14,7 @@ class ConstrastiveDataset(Dataset):
     def __init__(self, file_name):
         super().__init__()
         csv_path = os.path.join(data_dir, file_name)
-        self.contrastive_frame = pd.read_csv(csv_path)
+        self.contrastive_frame = pd.read_parquet(csv_path)
         self.unk_token = '<unk>'
         self.pad_token = '<pad>'
         self.load_embedding()
@@ -56,6 +56,6 @@ class ConstrastiveDataset(Dataset):
     def load_contrastive_data(self):
         self.augmented_data_list = self.contrastive_frame.iloc[:,2:].values.tolist()
         for i, data in enumerate(self.augmented_data_list):
-            self.augmented_data_list[i] = [self.convert_text_to_input_ids(x) for x in data if str(x) != 'nan']
+            self.augmented_data_list[i] = [self.convert_text_to_input_ids(x) for x in data if x]
 
 

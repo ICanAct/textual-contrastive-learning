@@ -70,7 +70,8 @@ class custom_transformers_trainer():
     
 if __name__ == '__main__':
     # create the dataset
-    train_data = ConstrastiveDataset('sample_with_none.csv')
+    filename = "con_sub_unique.zstd"
+    train_data = ConstrastiveDataset(filename)
     config = Config()
     model = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dropout, config.custom_embeddings)
     trainer = custom_transformers_trainer(model, train_data)
