@@ -28,10 +28,9 @@ class contrastive_transformer(torch.nn.Module):
         # load the embeddings here
         self.embeddings = np.load(os.path.join(data_dir, "embs_fasttext.npy"), allow_pickle=True)
     
-    def forward(self, x, mask, padding_mask):
+    def forward(self, x, padding_mask):
         if self.custom_embeddings:
             x = self.embedding(x)
-        x = self.transformer_encoder(x, mask=mask, src_key_padding_mask=padding_mask)
+        x = self.transformer_encoder(x, src_key_padding_mask=padding_mask)
         return x
-    
     
