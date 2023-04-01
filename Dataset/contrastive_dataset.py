@@ -13,6 +13,7 @@ vocab_path = os.path.join(dir_path, 'vocab_fasttext.npy')
 class ConstrastiveDataset(Dataset):
     def __init__(self, file_name):
         super().__init__()
+        self.file_name= file_name
         csv_path = os.path.join(data_dir, file_name)
         self.contrastive_frame = pd.read_parquet(csv_path)
         self.unk_token = '<unk>'

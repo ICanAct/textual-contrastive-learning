@@ -61,9 +61,9 @@ class custom_transformers_trainer():
                 if step % 100 == 0 and step!=0:
                     print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/total_steps}")
             
-            # save the model after 25 epochs
+            # save the model after 10 epochs
             if epoch % 10 == 0 and epoch!=0:
-                self.save_model(f"transformer_weights_checkpoint.pt")
+                self.save_model(f"transformer_weights_{self.train_dataset.filename}.pt")
                 
             print(f"Epoch: {epoch}, Loss: {loss_total/total_steps}")
 
@@ -83,4 +83,4 @@ if __name__ == '__main__':
         
     trainer.train()
     # path to save the weights. 
-    trainer.save_model('transformer_weights_final.pt')
+    trainer.save_model(f'transformer_weights_final_{filename}.pt')
