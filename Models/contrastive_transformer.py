@@ -7,7 +7,7 @@ from pathlib import Path
 data_dir = os.path.join(Path(__file__).resolve().parents[1], 'Embeddings')
 
 class contrastive_transformer(torch.nn.Module):
-    def __init__(self, hidden_size, num_heads, num_layers, dropout=0.5, custom_embeddings=True):
+    def __init__(self, hidden_size, num_heads, num_layers, dropout=0.5, custom_embeddings=False):
         super(contrastive_transformer, self).__init__()
         self.custom_embeddings = custom_embeddings
         self.hidden_size = hidden_size
@@ -19,8 +19,10 @@ class contrastive_transformer(torch.nn.Module):
         if self.custom_embeddings:
             self.load_embeddings()
             self.embedding = torch.nn.Embedding.from_pretrained(torch.from_numpy(self.embeddings).float(), freeze=True)
-        
-        self.input_size = self.embeddings.shape[1]
+            self.input_size = self.embeddings.shape[1]
+            
+        self.embedding = torch.nn.Embedding(1000001, 300, padding_idx=0)
+        self.input_size = 300
         self.transformer_encoder_layer = torch.nn.TransformerEncoderLayer(d_model=self.input_size, nhead=self.heads, batch_first=True, dropout=self.dropout, activation='gelu')
         self.transformer_encoder = torch.nn.TransformerEncoder(self.transformer_encoder_layer, num_layers=self.num_layers)
     
