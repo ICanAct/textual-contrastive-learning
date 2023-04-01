@@ -75,6 +75,7 @@ class custom_transformers_trainer():
 if __name__ == '__main__':
     # create the dataset
     filename = "syn_unique.zstd"
+    filename = 'con_sub_unique.zstd'
     train_data = ConstrastiveDataset(filename)
     config = Config()
     model = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dropout, config.custom_embeddings)
