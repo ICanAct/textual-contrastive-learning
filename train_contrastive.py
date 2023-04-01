@@ -63,7 +63,7 @@ class custom_transformers_trainer():
             
             # save the model after 10 epochs
             if epoch % 10 == 0 and epoch!=0:
-                self.save_model(f"transformer_weights_{self.train_dataset.filename}.pt")
+                self.save_model(f"transformer_weights_{self.train_dataset.file_name}.pt")
                 
             print(f"Epoch: {epoch}, Loss: {loss_total/total_steps}")
 
@@ -74,7 +74,7 @@ class custom_transformers_trainer():
     
 if __name__ == '__main__':
     # create the dataset
-    filename = "con_sub_unique.zstd"
+    filename = "syn_unique.zstd"
     train_data = ConstrastiveDataset(filename)
     config = Config()
     model = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dropout, config.custom_embeddings)
