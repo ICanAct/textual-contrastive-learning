@@ -35,7 +35,7 @@ class custom_transformers_trainer():
         model.train()
         for epoch in range(self.config.epochs):
             loss_total = 0
-            samples_processed = 0
+            total_steps = 0
             for step, (original, augmented) in enumerate(self.train_loader):
                 # creating mask
                 self.optimizer.zero_grad()
@@ -57,11 +57,15 @@ class custom_transformers_trainer():
                 loss.backward()
                 self.optimizer.step()
                 loss_total += loss.item()
-                samples_processed += original.shape[0]
+                total_steps += 1
                 if step % 100 == 0 and step!=0:
-                    print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/samples_processed}")
+                    print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/total_steps}")
             
-            print(f"Epoch: {epoch}, Loss: {loss_total/samples_processed}")
+            # save the model after 25 epochs
+            if epoch % 25 == 0 and epoch!=0:
+                self.save_model(f"transformer_weights_{epoch}.pt")
+                
+            print(f"Epoch: {epoch}, Loss: {loss_total/total_steps}")
 
     
     def save_model(self, path):
@@ -79,4 +83,4 @@ if __name__ == '__main__':
         
     trainer.train()
     # path to save the weights. 
-    trainer.save_model('transformer_weights.pt')
+    trainer.save_model('transformer_weights_final.pt')
