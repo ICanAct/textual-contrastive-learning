@@ -133,5 +133,7 @@ if __name__ == '__main__':
     trainer = fine_tuning_trainer(fine_tune_model, train_data, val_data, test_data)
     trainer.train()
     # eval on test set
-    trainer.evaluation(data_set='test')
-    
+    print("Evaluating on test set...")
+    test_loss, test_acc, test_f1 = trainer.evaluation(data_set='test')
+    print("Test Loss: {}, Test Accuracy: {}, Test F1: {}".format(test_loss, test_acc, test_f1))
+    print("Fight me distilbert!")

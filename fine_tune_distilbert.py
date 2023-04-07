@@ -140,4 +140,7 @@ if __name__ == '__main__':
     trainer = distillbert_trainer(bert, train_data, test_data, config.epochs, config.batch_size, config.learning_rate, config.device, val_data)
     trainer.train()
     # eval on test set
-    trainer.evaluation(data_set='test')
+    print("Evaluating on test set...")
+    test_loss, test_acc, test_f1 = trainer.evaluation(data_set='test')
+    print(f"Test Loss: {test_loss}, Test Acc: {test_acc}, Test F1: {test_f1}")
+    print("Take that ConTra!")
