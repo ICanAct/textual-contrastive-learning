@@ -54,24 +54,20 @@ class fine_tuning_trainer():
             total_steps = 0
             for step, (original, labels) in enumerate(self.train_loader):
                 # creating mask
-                with torch.enable_grad():
-                    self.optimizer.zero_grad()
-                    
-                    original, labels = original.to(self.config.device), labels.to(self.config.device)
-
-                    original_padding_mask = (original == 0).to(self.config.device)
-                    
-                    outputs = self.model(original, padding_mask=original_padding_mask)
-                    
-                    loss = self.criterion(outputs, labels)
-                    loss.backward()
-                    self.optimizer.step()
-                    loss_total += loss.item()
-                    total_steps += 1
-                    if step % 100 == 0 and step!=0:
-                        print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/total_steps}")
+            
+                original, labels = original.to(self.config.device), labels.to(self.config.device)
+                original_padding_mask = (original == 0).to(self.config.device)
+                outputs = self.model(original, padding_mask=original_padding_mask)
+                loss = self.criterion(outputs, labels)
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+                loss_total += loss.item()
+                total_steps += 1
+                if step % 100 == 0 and step!=0:
+                    print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/total_steps}")
                 
-                print(f"Epoch: {epoch}, Loss: {loss_total/total_steps}")
+            print(f"Epoch: {epoch}, Loss: {loss_total/total_steps}")
             val_loss, val_acc, val_f1 = self.evaluation(data_set='val')
             
             print("Validation Loss: {}, Validation Accuracy: {}, Validation F1: {}".format(val_loss, val_acc, val_f1))
@@ -80,7 +76,7 @@ class fine_tuning_trainer():
                 max_val_acc = val_acc
                 self.save_model("fine_tune_model_ConTra.pt")
 
-    @torch.no_grad()
+    
     def evaluation(self, data_set='val'):
         
         if data_set == 'val':
@@ -95,19 +91,20 @@ class fine_tuning_trainer():
         loss_num = 0
         
         for data, targets in data_loader:
-            data, targets = data.to(self.device), targets.to(self.device)
-            src_padding_mask = (data == 0)
-            src_padding_mask = src_padding_mask.to(self.device)
-            logits = self.model(data, src_padding_mask)
-            total_logits.append(logits)
-            loss = self.criterion(logits, targets)
-            total_labels += targets.tolist()
-            loss_total += loss.item()
-            loss_num += 1
+            with torch.no_grad():
+                data, targets = data.to(self.config.device), targets.to(self.config.device)
+                src_padding_mask = (data == 0)
+                src_padding_mask = src_padding_mask.to(self.config.device)
+                logits = self.model(data, src_padding_mask)
+                total_logits.append(logits)
+                loss = self.criterion(logits, targets)
+                total_labels += targets.tolist()
+                loss_total += loss.item()
+                loss_num += 1
         
         total_loss = loss_total/loss_num
         total_logits = F.softmax(torch.cat(total_logits, dim=0).detach(), dim=1)
-        total_labels = torch.tensor(total_labels, device=self.device)
+        total_labels = torch.tensor(total_labels, device=self.config.device)
         accuracy = multiclass_accuracy(total_logits, total_labels)
         f1_score = multiclass_f1_score(total_logits, total_labels, average='macro')
         
