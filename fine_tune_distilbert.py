@@ -32,7 +32,7 @@ class distillbert_trainer():
     
     def collate_fn(self, batch):
         data, target = zip(*batch)
-        output = self.tokenizer(data, truncation=True, padding='max_length', max_length=512, return_tensors="pt")
+        output = self.tokenizer(data, truncation=True, padding='max_length', max_length=256, return_tensors="pt")
         target = torch.tensor(target)
         return output, target
     
@@ -66,8 +66,8 @@ class distillbert_trainer():
             self.model.train()
             
             for step, (data, target) in enumerate(self.train_loader):
-                input_ids, attention_mask, token_type_ids, target = data['input_ids'].to(self.device), data['attention_mask'].to(self.device),data['token_type_ids'].to(self.device), target.to(self.device)
-                output = self.model(input_ids, attention_mask, token_type_ids)
+                input_ids, attention_mask, target = data['input_ids'].to(self.device), data['attention_mask'].to(self.device), target.to(self.device)
+                output = self.model(input_ids, attention_mask)
                 loss = self.criterion(output, target)
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -132,9 +132,9 @@ if __name__ == '__main__':
     
     data_dir = os.path.join(Path(__file__).resolve().parent, "Data")
     
-    train_data = FineTuningDataset('train.zstd')
-    val_data = FineTuningDataset('val.zstd')
-    test_data = FineTuningDataset('test.zstd')
+    train_data = FineTuningDataset('train.zstd', bert_model=True)
+    val_data = FineTuningDataset('val.zstd', bert_model=True)
+    test_data = FineTuningDataset('test.zstd', bert_model=True)
     config = Config()
     bert = DistillBERTMLP(num_classes=4) 
     trainer = distillbert_trainer(bert, train_data, test_data, config.epochs, config.batch_size, config.learning_rate, config.device, val_data)

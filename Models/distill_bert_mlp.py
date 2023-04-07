@@ -8,11 +8,10 @@ class DistillBERTMLP(torch.nn.Module):
         self.bert = DistilBertModel.from_pretrained('distilbert-base-uncased')
         self.linear = torch.nn.Linear(768, self.num_classes)
     
-    def forward(self, input_ids, attention_mask, token_type_ids):
+    def forward(self, input_ids, attention_mask):
         output = self.bert(input_ids=input_ids, 
                     attention_mask=attention_mask, 
-                    token_type_ids=token_type_ids,
-                    return_dict=True,
+                    return_dict=True
                 )
         output = output[0]
         #output = self.dropout_layer(output)
