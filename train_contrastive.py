@@ -2,12 +2,15 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
+from torch.optim import lr_scheduler
 
 from Dataset.contrastive_dataset import ConstrastiveDataset
 from Models.contrastive_transformer import contrastive_transformer
 from contrastive_config import Config
 from contrastive_loss import ContrastiveLoss
 
+
+filename = "chained_augmentations"
 
 class custom_transformers_trainer():
     def __init__(self, model, train_dataset):
@@ -20,6 +23,7 @@ class custom_transformers_trainer():
         
     def create_optimizer(self):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
+        self.scheduler = lr_scheduler.MultiStepLR(self.optimizer, milestones=[i*50 for i in range(1,1000)], gamma=0.5)
     
     def collate_fn(self, batch):
         original_data, contrastive_data = zip(*batch)
@@ -34,8 +38,9 @@ class custom_transformers_trainer():
         model = model.to(self.config.device)
         model.train()
         for epoch in range(self.config.epochs):
+            self.scheduler.step()
             loss_total = 0
-            samples_processed = 0
+            batches_processed = 0
             for step, (original, augmented) in enumerate(self.train_loader):
                 # creating mask
                 self.optimizer.zero_grad()
@@ -57,11 +62,12 @@ class custom_transformers_trainer():
                 loss.backward()
                 self.optimizer.step()
                 loss_total += loss.item()
-                samples_processed += original.shape[0]
-                if step % 100 == 0 and step!=0:
-                    print(f"Epoch: {epoch}, Step: {step}, Loss: {loss_total/samples_processed}")
+                batches_processed += 1
             
-            print(f"Epoch: {epoch}, Loss: {loss_total/samples_processed}")
+            print(f"Epoch: {epoch}, Loss: {loss_total/batches_processed}")
+            if epoch % 50 == 0:
+                self.save_model(f'checkpoints/longfinal{filename}.pt')
+                print(f"Learning rate: {self.scheduler.get_last_lr()}")
 
     
     def save_model(self, path):
@@ -70,13 +76,16 @@ class custom_transformers_trainer():
     
 if __name__ == '__main__':
     # create the dataset
-    filename = "con_sub_unique.zstd"
-    train_data = ConstrastiveDataset(filename)
+    filename_ext = f"{filename}.zstd"
+    train_data = ConstrastiveDataset(filename_ext)
     config = Config()
-    model = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dropout, config.custom_embeddings)
+    model = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dim_feedforward, config.dropout, config.custom_embeddings)
+    chkpt_path = f"checkpoints/longfinal{filename}.pt"
+    model.load_state_dict(torch.load(chkpt_path))
     trainer = custom_transformers_trainer(model, train_data)
+    print(trainer.model)
     
         
     trainer.train()
     # path to save the weights. 
-    trainer.save_model('transformer_weights.pt')
+    trainer.save_model(f'checkpoints/longfinal{filename}.pt')

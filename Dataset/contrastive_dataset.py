@@ -8,7 +8,7 @@ import torch
 
 dir_path = os.path.join(Path(__file__).resolve().parents[1], 'Embeddings')
 data_dir = os.path.join(Path(__file__).resolve().parents[1], 'Data')
-vocab_path = os.path.join(dir_path, 'vocab_fasttext.npy')
+vocab_path = os.path.join(dir_path, 'vocab_glove.npy')
 
 class ConstrastiveDataset(Dataset):
     def __init__(self, file_name):
@@ -26,7 +26,7 @@ class ConstrastiveDataset(Dataset):
 
     def __getitem__(self, index):
         
-        original_data = self.original_data_list[index]
+        original_data = random.choice(self.augmented_data_list[index])
         contrastive_data = random.choice(self.augmented_data_list[index])
         
         return original_data, contrastive_data
@@ -45,7 +45,7 @@ class ConstrastiveDataset(Dataset):
                 words[i] = self.word2idx[self.unk_token]
             else:
                 words[i] = self.word2idx[words[i]]
-        return torch.Tensor(words).long()
+        return torch.Tensor(words[:256]).long()
     
     def load_original_data(self):
         self.original_data_list = self.contrastive_frame['Description'].values.tolist()
@@ -54,7 +54,7 @@ class ConstrastiveDataset(Dataset):
 
 
     def load_contrastive_data(self):
-        self.augmented_data_list = self.contrastive_frame.iloc[:,2:].values.tolist()
+        self.augmented_data_list = self.contrastive_frame.iloc[:,1:].values.tolist()
         for i, data in enumerate(self.augmented_data_list):
             self.augmented_data_list[i] = [self.convert_text_to_input_ids(x) for x in data if x]
 
