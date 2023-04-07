@@ -57,7 +57,7 @@ class distillbert_trainer():
     
     def train(self):
         max_val_acc = 0
-        self.model = torch.compile(self.model)
+        #self.model = torch.compile(self.model)
         self.model = self.model.to(self.device)
         
         for epoch in range(self.epochs):
