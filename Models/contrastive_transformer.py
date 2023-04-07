@@ -53,7 +53,7 @@ class contrastive_transformer(torch.nn.Module):
         transformer_encoder_layer = torch.nn.TransformerEncoderLayer(d_model=self.input_size, dim_feedforward=self.dim_feedforward, nhead=self.heads, batch_first=True, dropout=self.dropout, activation='gelu')
         self.transformer_encoder = torch.nn.TransformerEncoder(transformer_encoder_layer, num_layers=self.num_layers)
         self.pos_enc = PositionalEncoding(self.input_size)
-    
+   
     def load_embeddings(self):
         # load the embeddings here
         #self.embeddings = np.load(os.path.join(data_dir, "embs_fasttext.npy"), allow_pickle=True)

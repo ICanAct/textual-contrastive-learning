@@ -68,7 +68,6 @@ class custom_transformers_trainer():
             if epoch % 50 == 0:
                 self.save_model(f'checkpoints/longfinal{filename}.pt')
                 print(f"Learning rate: {self.scheduler.get_last_lr()}")
-
     
     def save_model(self, path):
         torch.save(self.model.state_dict(), path)
