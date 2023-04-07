@@ -116,8 +116,8 @@ class distillbert_trainer():
             total_loss = loss_total/loss_num
             total_logits = F.softmax(torch.cat(total_logits, dim=0).detach(), dim=1)
             total_labels = torch.tensor(total_labels, device=self.device)
-            accuracy = multiclass_accuracy(total_logits, total_labels)
-            f1_score = multiclass_f1_score(total_logits, total_labels, num_classes=self.model.num_classes, average='macro')
+            accuracy = multiclass_accuracy(total_logits, total_labels, num_classes=4)
+            f1_score = multiclass_f1_score(total_logits, total_labels, num_classes=4, average='macro')
             
             
         return total_loss, accuracy, f1_score
