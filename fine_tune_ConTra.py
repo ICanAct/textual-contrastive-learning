@@ -126,7 +126,7 @@ if __name__ == '__main__':
     config = Config()
     ConTra = contrastive_transformer(config.hidden_size, config.num_heads, config.num_layers, config.dim_feedforward, config.dropout, config.custom_embeddings)
     # load the weights
-    checkpoint = torch.load(os.path.join(model_saves_path, "ConTra_weights.pt"), map_location=config.device)
+    checkpoint = torch.load(os.path.join(model_saves_path, "ConTra_weights.pt"))
     ConTra.load_state_dict(checkpoint)
     
     fine_tune_model = ConTra_mlp(ConTra, config.hidden_size, train_data.num_classes)
