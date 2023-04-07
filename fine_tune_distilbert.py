@@ -104,7 +104,7 @@ class distillbert_trainer():
         loss_num = 0
         with torch.no_grad():
             for step, (data, target) in enumerate(data_loader):
-                input_ids, attention_mask, token_type_ids, target = data['input_ids'].to(self.device), data['attention_mask'].to(self.device), target.to(self.device)
+                input_ids, attention_mask, target = data['input_ids'].to(self.device), data['attention_mask'].to(self.device), target.to(self.device)
                 logits = self.model(input_ids, attention_mask)
             
                 total_logits.append(logits)

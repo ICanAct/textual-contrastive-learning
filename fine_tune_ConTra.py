@@ -42,13 +42,13 @@ class fine_tuning_trainer():
     
 
     def train(self):
-        
+        max_val_acc = 0
         # this is 2.0 specific. Remove this if you are not using torch 2.0
         #self.model = torch.compile(self.model)
         self.model = self.model.to(self.config.device)
         
         for epoch in range(self.config.epochs):
-            max_val_acc = 0
+            
             self.model.train()
             loss_total = 0
             total_steps = 0
