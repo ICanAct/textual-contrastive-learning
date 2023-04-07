@@ -44,7 +44,7 @@ class fine_tuning_trainer():
     def train(self):
         
         # this is 2.0 specific. Remove this if you are not using torch 2.0
-        self.model = torch.compile(self.model)
+        #self.model = torch.compile(self.model)
         self.model = self.model.to(self.config.device)
         
         for epoch in range(self.config.epochs):
